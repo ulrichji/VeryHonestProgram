@@ -6,6 +6,7 @@ Todo list:
   - Improve GUI (checkboxes for which puzzles the bot should interract with) for compatibility with several puzzles
 x - Bilge:
     - Add fishes an jellyfishes to the scoring-table
+    - Different scoring for different boards (depending on the number of colors on the board)
   - Rumble?
     - Add scoring
     - Method for placement (predict trajectory)
