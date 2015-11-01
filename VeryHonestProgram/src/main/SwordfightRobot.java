@@ -7,16 +7,15 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
-public class SwordfightRobot
+public class SwordfightRobot implements PPRobot
 {
 	private boolean run=true;
 	private Rectangle boardRect;
 	private SwordfightPair currentDrop;
 	private SwordfightPair nextDrop;
 	private Robot robot;
-	public SwordfightRobot(Robot robot,Coordinate topLeft,Coordinate bottomRight)
+	public SwordfightRobot(Robot robot)
 	{
-		boardRect=new Rectangle(topLeft.x,topLeft.y,bottomRight.x,bottomRight.y);
 		this.robot=robot;
 	}
 
@@ -123,6 +122,31 @@ public class SwordfightRobot
 		pair.setAngle(bestAngle);
 		board.dropPair(pair,bestColumn);
 		return bestColumn;
+	}
+
+	@Override
+	public void init()
+	{
+		//TODO implement here
+	}
+
+	@Override
+	public GameResult playGame()
+	{
+		//TODO implement here
+		return null;
+	}
+
+	@Override
+	public void abortGame()
+	{
+		//TODO implement here
+	}
+
+	@Override
+	public void setScreen(Coordinate topLeft,Coordinate bottomRight)
+	{
+		this.boardRect=new Rectangle(topLeft.x,topLeft.y,bottomRight.x,bottomRight.y);
 	}
 	
 }

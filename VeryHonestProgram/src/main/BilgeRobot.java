@@ -4,9 +4,12 @@ import java.awt.Rectangle;
 import java.awt.Robot;
 import java.awt.event.InputEvent;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
+
+import javax.imageio.ImageIO;
 
 
-public class BilgeRobot
+public class BilgeRobot implements PPRobot
 {
 	private Robot robot;
 	private Coordinate topLeft,bottomRight;
@@ -16,16 +19,32 @@ public class BilgeRobot
 	
 	public boolean run=true;
 	
-	public BilgeRobot(Robot robot,Coordinate topLeft,Coordinate bottomRight)
+	private BufferedImage bi_topLeft;
+	private BufferedImage bi_bottomRight;
+	
+	public BilgeRobot(Robot robot)
 	{
 		this.robot=robot;
-		this.topLeft=topLeft;
-		this.bottomRight=bottomRight;
 	}
 	
 	public void stop()
 	{
 		run=false;
+	}
+	
+	private void getBounds()
+	{
+		BufferedImage screen = robot.createScreenCapture(new Rectangle(0,0,1366,768));
+		
+		topLeft=Main.searchFor(screen,bi_topLeft);
+		bottomRight=Main.searchFor(screen,bi_bottomRight);
+		
+		System.out.println(topLeft+"  "+bottomRight);
+		
+		bottomRight.x=bottomRight.x-topLeft.x-bi_bottomRight.getWidth();//FIXME Why subtract width of image?
+		bottomRight.y=bottomRight.y-topLeft.y-bi_bottomRight.getHeight();
+		topLeft.x=topLeft.x+bi_topLeft.getWidth();
+		topLeft.y=topLeft.y+bi_topLeft.getHeight();
 	}
 	
 	public BilgeBoard getBilgeBoard()
@@ -42,6 +61,8 @@ public class BilgeRobot
 		{
 			e2.printStackTrace();
 		}*/
+		
+		//System.out.println(screen+"  "+topLeft +"  "+bottomRight);
 		subScreen=Main.subImage(screen,new Rectangle(topLeft.x,topLeft.y,bottomRight.x,bottomRight.y));
 		
 		/*try
@@ -67,56 +88,6 @@ public class BilgeRobot
 		}
 		
 		return new BilgeBoard(board);
-	}
-	
-	public void run()
-	{
-		while(run)
-		{
-			try
-			{
-				Thread.sleep(200);
-			}catch(InterruptedException e1)
-			{
-				e1.printStackTrace();
-			}
-			
-			
-			BilgeBoard bilgeBoard=null;
-			BilgeBoard tempBoard=null;
-			long lastTime=0;
-			do
-			{
-				long startTime=System.currentTimeMillis();
-				bilgeBoard=getBilgeBoard();
-				try
-				{
-					long timeToSleep=200-(System.currentTimeMillis()-startTime)-lastTime;
-					if(timeToSleep>0)
-						Thread.sleep(timeToSleep);
-				}catch(InterruptedException e)
-				{
-					e.printStackTrace();
-				}
-				startTime=System.currentTimeMillis();
-				tempBoard=getBilgeBoard();
-				lastTime=System.currentTimeMillis()-startTime;
-			}while(! bilgeBoard.isLike(tempBoard));
-			
-			Coordinate toClick=topSearchBoard(bilgeBoard,3);
-			if(toClick==null)
-				continue;
-			
-			System.out.println(toClick.x+"  "+toClick.y);
-			int x=((toClick.x*tileWidth)+(tileWidth))+topLeft.x;
-			int y=((toClick.y*tileHeight)+(tileHeight/2))+topLeft.y;
-			
-			System.out.println(x+"  "+y);
-			
-			robot.mouseMove(x,y);
-			robot.mousePress(InputEvent.BUTTON1_MASK);
-			robot.mouseRelease(InputEvent.BUTTON1_MASK);
-		}
 	}
 	
 	private int searchBoard(BilgeBoard board,int depth,int turn)
@@ -168,5 +139,85 @@ public class BilgeRobot
 			}
 		}
 		return toReturn;
+	}
+
+	@Override
+	public void init()
+	{
+		try
+		{
+			bi_topLeft=ImageIO.read(this.getClass().getResource("/images/b_topleft.png"));
+			bi_bottomRight=ImageIO.read(this.getClass().getResource("/images/b_bottomright.png"));
+		}catch(IOException e)
+		{
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public GameResult playGame()
+	{
+		run=true;
+		getBounds();
+		while(run)
+		{
+			try
+			{
+				Thread.sleep(200);
+			}catch(InterruptedException e1)
+			{
+				e1.printStackTrace();
+			}
+			
+			
+			BilgeBoard bilgeBoard=null;
+			BilgeBoard tempBoard=null;
+			long lastTime=0;
+			do
+			{
+				long startTime=System.currentTimeMillis();
+				bilgeBoard=getBilgeBoard();
+				try
+				{
+					long timeToSleep=200-(System.currentTimeMillis()-startTime)-lastTime;
+					if(timeToSleep>0)
+						Thread.sleep(timeToSleep);
+				}catch(InterruptedException e)
+				{
+					e.printStackTrace();
+				}
+				startTime=System.currentTimeMillis();
+				tempBoard=getBilgeBoard();
+				lastTime=System.currentTimeMillis()-startTime;
+			}while(! bilgeBoard.isLike(tempBoard));
+			
+			Coordinate toClick=topSearchBoard(bilgeBoard,3);
+			if(toClick==null)
+				continue;
+			
+			System.out.println(toClick.x+"  "+toClick.y);
+			int x=((toClick.x*tileWidth)+(tileWidth))+topLeft.x;
+			int y=((toClick.y*tileHeight)+(tileHeight/2))+topLeft.y;
+			
+			System.out.println(x+"  "+y);
+			
+			robot.mouseMove(x,y);
+			robot.mousePress(InputEvent.BUTTON1_MASK);
+			robot.mouseRelease(InputEvent.BUTTON1_MASK);
+		}
+		return GameResult.ABORTED;
+	}
+
+	@Override
+	public void abortGame()
+	{
+		run=false;
+	}
+
+	@Override
+	public void setScreen(Coordinate topLeft,Coordinate bottomRight)
+	{
+		this.topLeft=topLeft;
+		this.bottomRight=bottomRight;
 	}
 }

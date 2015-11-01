@@ -15,21 +15,18 @@ public class Main
 	Robot robot;
 	BufferedImage screen;
 	
-	BufferedImage bi_topLeft;
-	BufferedImage bi_bottomRight;
-	
 	GUI gui=new GUI(this);
 	
 	BilgeRobot bilgeRobot;
 	SwordfightRobot swordfightRobot;
 	
+	GameMode gameMode = GameMode.BILGING;
+	
 	public void loadImages()
 	{
 		try
 		{
-			bi_topLeft=ImageIO.read(new File("C:\\Users\\Ulrich\\Documents\\workspace\\RobotTest\\src\\images\\sf_topleft.png"));
-			bi_bottomRight=ImageIO.read(new File("C:\\Users\\Ulrich\\Documents\\workspace\\RobotTest\\src\\images\\sf_bottomright.png"));
-			screen=ImageIO.read(new File("C:\\Users\\Ulrich\\Documents\\workspace\\RobotTest\\src\\images\\screen.png"));
+			screen=ImageIO.read(this.getClass().getResource("/images/screen.png"));
 			
 		}catch(IOException e)
 		{
@@ -48,12 +45,18 @@ public class Main
 			e.printStackTrace();
 		}
 		loadImages();
+		
+		bilgeRobot = new BilgeRobot(robot);
+		swordfightRobot = new SwordfightRobot(robot);
+		
+		bilgeRobot.init();
+		swordfightRobot.init();
 	}
 
-	public Coordinate searchFor(BufferedImage img1,BufferedImage img2)
+	public static Coordinate searchFor(BufferedImage img1,BufferedImage img2)
 	{
 		int[][]img2Bytes=new int[img2.getWidth()][img2.getHeight()];
-		
+
 		for(int i=0;i<img2Bytes.length;i++)
 		{
 			for(int u=0;u<img2Bytes[i].length;u++)
@@ -74,7 +77,7 @@ public class Main
 					
 					int rgbval=img1.getRGB(x,y);
 					//System.out.println(rgbval+"  "+img2Bytes[xCount][yCount]);
-					if(rgbval!=img2Bytes[xCount][yCount])
+					if(rgbval != img2Bytes[xCount][yCount])
 					{
 						matches=false;
 						break;
@@ -116,29 +119,37 @@ public class Main
 			e.printStackTrace();
 		}
 		
-		Coordinate topLeft=searchFor(screen,bi_topLeft);
-		Coordinate bottomRight=searchFor(screen,bi_bottomRight);
+				
+		GameResult result=GameResult.NONE;
 		
-		bottomRight.x=bottomRight.x-topLeft.x-bi_bottomRight.getWidth();//FIXME Why subtract width of image?
-		bottomRight.y=bottomRight.y-topLeft.y-bi_bottomRight.getHeight();
-		topLeft.x=topLeft.x+bi_topLeft.getWidth();
-		topLeft.y=topLeft.y+bi_topLeft.getHeight();
-		
-		swordfightRobot=new SwordfightRobot(robot,topLeft,bottomRight);
-		bilgeRobot=new BilgeRobot(robot,topLeft,bottomRight);
-		Runnable swordfightRunnable=new Runnable()
+		switch(gameMode)
 		{
-			public void run()
-			{
-				swordfightRobot.run();
-			}
-		};
-		new Thread(swordfightRunnable).start();
+		case BILGING:
+			result = bilgeRobot.playGame();
+			break;
+		case SWORDFIGHT:
+			result = swordfightRobot.playGame();
+			break;
+		default:
+			break;
+		}
+		
+		System.out.println(result);
 	}
 	
 	public void stopSearching()
 	{
-		bilgeRobot.stop();
+		switch(gameMode)
+		{
+		case BILGING:
+			bilgeRobot.abortGame();
+			break;
+		case SWORDFIGHT:
+			swordfightRobot.abortGame();
+			break;
+		default:
+			break;
+		}
 	}
 	
 	public static BufferedImage subImage(BufferedImage img,Rectangle rect)
