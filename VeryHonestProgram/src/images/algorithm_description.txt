@@ -1,0 +1,31 @@
+s=Verdien til en samling
+p=verdien til en blokkering, hvor mye xdelegger den
+x=antall blokker
+y=ulike verdier av y er definert under
+a=antall blokker som innger i en sammensatt blokk
+
+Programmet tar kun hensyn til sluttresultatet etter en runde, og skiller ikke mellom eldre og nyere plasseringer.
+Markering vil si e rotere en blokk 180 grader for ikke e knuse
+
+Verdien til en samling:
+stxrst gruppe: s=2xy+2
+Grupper over 8(?) blokker: s=2xy
+mindre grupper: s=xy
+Danne bygge uten e lage blokk: y=1
+Sammensatte blokker: y=0.9+(a^2+a+1)/(20a+5)
+
+Knuse:
+E knuse blokker vil i virkeligheten fjerne score fra brettet. Programmet teller derfor opp scoren fxrst, multipliserer den med 1.2, og fjerner gruppen fra brettet
+1.2s-(S) (dette vil si at den husker scoren, men vurderer brettet som om gruppen ikke er der)
+Markxr
+	Markxrer:
+	Markxr fremfor knus, dersom knus vil gi en s-verdi pe over 20, og brettet er under 50% fylt
+	Markxrer er verdt 1.5s,
+		Dette gjxr at programmet vil bygge comboer se lenge brettet er under 50% fylt.
+Dersom brettet er mer enn 80% fylt, vil alle knus gi 2.2s.
+	
+Blokkere:
+p trekkes fra s, men lagres ikke etter runden. Verdien av en samling vil fortsatt vfre den samme.
+Inngang for blokker: -1 000 000
+Hvis den etter turen vil blokkere 2 av sidene de tilgjengelige blokkene., vil det fjerne 45% av scoren for den runden, fjerner den siste, 95%.
+	Dette tillater at programmet vil gjenkjenne en blokk som blokkerer en stxrre samling, og dermed knuse denne om den kan.
