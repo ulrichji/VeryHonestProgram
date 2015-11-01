@@ -1,0 +1,19 @@
+Todo list:
+  - SF:
+   - Make swordfighting work*
+   - Ajust scoring*
+   - Add human-like movements
+  - Improve GUI (checkboxes for which puzzles the bot should interract with) for compatibility with several puzzles
+x - Bilge:
+    - Add fishes an jellyfishes to the scoring-table
+  - Rumble?
+    - Add scoring
+    - Method for placement (predict trajectory)
+    - Add human-like aiming
+  - Carpentry?
+    - Recognize boards and pices
+    - Rules for placement (in contact with other pieces, etc)
+    - Add probability-calculations that gives the most cleared boards
+    - Add scoring for masterpieces and craftmanships (masterpiece x6 in stead of: masterpiece x5, craftmanship, masterpice)
+    - Add human-like movements
+    - Add the possibility to recognize the direction of grains (for nice sets)
