@@ -191,19 +191,33 @@ public class BilgeRobot implements PPRobot
 				lastTime=System.currentTimeMillis()-startTime;
 			}while(! bilgeBoard.isLike(tempBoard));
 			
-			Coordinate toClick=topSearchBoard(bilgeBoard,3);
+			final Coordinate toClick=topSearchBoard(bilgeBoard,3);
 			if(toClick==null)
 				continue;
-			
 			System.out.println(toClick.x+"  "+toClick.y);
-			int x=((toClick.x*tileWidth)+(tileWidth))+topLeft.x;
-			int y=((toClick.y*tileHeight)+(tileHeight/2))+topLeft.y;
 			
+			Runnable r = new Runnable(){
+				int x=((toClick.x*tileWidth)+(tileWidth))+topLeft.x+(int)(Math.random()*40-20);
+				int y=((toClick.y*tileHeight)+(tileHeight/2))+topLeft.y+(int)(Math.random()*20-10);
+				public void run(){
+					robot.delay(150);
+					x=3*tileWidth+topLeft.x+(int)(Math.random()*100-50);
+					y=6*tileHeight+topLeft.y+(int)(Math.random()*200-100);
+					robot.mouseMove(x,y);
+				}
+				};
+			
+			int x=((toClick.x*tileWidth)+(tileWidth))+topLeft.x+(int)(Math.random()*40-20);
+			int y=((toClick.y*tileHeight)+(tileHeight/2))+topLeft.y+(int)(Math.random()*20-10);		
 			System.out.println(x+"  "+y);
-			
 			robot.mouseMove(x,y);
+			robot.delay(100+(int)Math.random()*20-10);
 			robot.mousePress(InputEvent.BUTTON1_MASK);
+			robot.delay((int) (5 + (int)(Math.random())));
 			robot.mouseRelease(InputEvent.BUTTON1_MASK);
+			robot.delay(150+(int)Math.random()*20-10);
+			Thread th = new Thread(r);
+			th.start();
 		}
 		return GameResult.ABORTED;
 	}
