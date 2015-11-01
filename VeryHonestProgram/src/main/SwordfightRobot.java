@@ -14,13 +14,91 @@ public class SwordfightRobot implements PPRobot
 	private SwordfightPair currentDrop;
 	private SwordfightPair nextDrop;
 	private Robot robot;
+	
+	private BufferedImage bi_topLeft;
+	private BufferedImage bi_bottomRight;
+	private Coordinate topLeft;
+	private Coordinate bottomRight;
+	
 	public SwordfightRobot(Robot robot)
 	{
 		this.robot=robot;
 	}
-
-	public void run()
+	
+	//this also changes the angle of the pair to the optimal angle
+	private int searchDrop(SwordfightBoard board,SwordfightPair pair)
 	{
+		byte bestAngle=0;
+		byte bestColumn=0;
+		double bestScore=0;
+		//all the columns
+		for(byte u=0;u<6;u++)
+		{
+			for(byte i=0;i<4;i++)
+			{
+				if((u==0 && i==2) || (u==5 && i==0))
+					continue;
+				pair.setAngle(i);
+				board.dropPair(pair,u);
+				double score=board.getScore();
+				if(score>bestScore)
+				{
+					bestScore=score;
+					bestAngle=i;
+					bestColumn=u;
+				}
+				board.undoLast();
+			}
+		}
+		pair.setAngle(bestAngle);
+		board.dropPair(pair,bestColumn);
+		return bestColumn;
+	}
+
+	private boolean getBounds()
+	{
+		BufferedImage screen=null;
+		try
+		{
+			screen=ImageIO.read(this.getClass().getResource("/images/sfboard.png"));
+		}catch(IOException e)
+		{
+			e.printStackTrace();
+		} //robot.createScreenCapture(new Rectangle(0,0,1366,768));
+		
+		topLeft=Main.searchFor(screen,bi_topLeft);
+		bottomRight=Main.searchFor(screen,bi_bottomRight);
+				
+		if(topLeft == null || bottomRight == null)
+			return false;
+		
+		bottomRight.x=bottomRight.x-topLeft.x-bi_bottomRight.getWidth();//FIXME Why subtract width of image?
+		bottomRight.y=bottomRight.y-topLeft.y-bi_bottomRight.getHeight();
+		topLeft.x=topLeft.x+bi_topLeft.getWidth();
+		topLeft.y=topLeft.y+bi_topLeft.getHeight();
+		
+		return true;
+	}
+	
+	@Override
+	public void init()
+	{
+		try
+		{
+			bi_topLeft=ImageIO.read(this.getClass().getResource("/images/sf_topleft.png"));
+			bi_bottomRight=ImageIO.read(this.getClass().getResource("/images/sf_bottomright.png"));
+		}catch(IOException e)
+		{
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public GameResult playGame()
+	{
+		run = true;
+		getBounds();
+		boardRect = new Rectangle(topLeft.x,topLeft.y,bottomRight.x,bottomRight.y);
 		while(run)
 		{
 			BufferedImage screen;
@@ -92,55 +170,13 @@ public class SwordfightRobot implements PPRobot
 			
 			run=false;
 		}
-	}
-	
-	//this also changes the angle of the pair to the optimal angle
-	private int searchDrop(SwordfightBoard board,SwordfightPair pair)
-	{
-		byte bestAngle=0;
-		byte bestColumn=0;
-		double bestScore=0;
-		//all the columns
-		for(byte u=0;u<6;u++)
-		{
-			for(byte i=0;i<4;i++)
-			{
-				if((u==0 && i==2) || (u==5 && i==0))
-					continue;
-				pair.setAngle(i);
-				board.dropPair(pair,u);
-				double score=board.getScore();
-				if(score>bestScore)
-				{
-					bestScore=score;
-					bestAngle=i;
-					bestColumn=u;
-				}
-				board.undoLast();
-			}
-		}
-		pair.setAngle(bestAngle);
-		board.dropPair(pair,bestColumn);
-		return bestColumn;
-	}
-
-	@Override
-	public void init()
-	{
-		//TODO implement here
-	}
-
-	@Override
-	public GameResult playGame()
-	{
-		//TODO implement here
-		return null;
+		return GameResult.ABORTED;
 	}
 
 	@Override
 	public void abortGame()
 	{
-		//TODO implement here
+		run = false;
 	}
 
 	@Override

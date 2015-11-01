@@ -32,19 +32,22 @@ public class BilgeRobot implements PPRobot
 		run=false;
 	}
 	
-	private void getBounds()
+	private boolean getBounds()
 	{
 		BufferedImage screen = robot.createScreenCapture(new Rectangle(0,0,1366,768));
 		
 		topLeft=Main.searchFor(screen,bi_topLeft);
 		bottomRight=Main.searchFor(screen,bi_bottomRight);
-		
-		System.out.println(topLeft+"  "+bottomRight);
+				
+		if(topLeft == null || bottomRight == null)
+			return false;
 		
 		bottomRight.x=bottomRight.x-topLeft.x-bi_bottomRight.getWidth();//FIXME Why subtract width of image?
 		bottomRight.y=bottomRight.y-topLeft.y-bi_bottomRight.getHeight();
 		topLeft.x=topLeft.x+bi_topLeft.getWidth();
 		topLeft.y=topLeft.y+bi_topLeft.getHeight();
+		
+		return true;
 	}
 	
 	public BilgeBoard getBilgeBoard()
@@ -53,25 +56,8 @@ public class BilgeRobot implements PPRobot
 		
 		BufferedImage subScreen;
 		BufferedImage screen=robot.createScreenCapture(new Rectangle(0,0,1366,768));
-		/*BufferedImage screen=null;
-		try
-		{
-			screen=ImageIO.read(this.getClass().getResource("/images/screen.png"));
-		}catch(IOException e2)
-		{
-			e2.printStackTrace();
-		}*/
 		
-		//System.out.println(screen+"  "+topLeft +"  "+bottomRight);
 		subScreen=Main.subImage(screen,new Rectangle(topLeft.x,topLeft.y,bottomRight.x,bottomRight.y));
-		
-		/*try
-		{
-			ImageIO.write(subScreen,"PNG",new File("C:\\Users\\Ulrich\\Pictures\\test.png"));
-		}catch(IOException e1)
-		{
-			e1.printStackTrace();
-		}*/
 			
 		tileWidth=subScreen.getWidth()/board.length;
 		tileHeight=subScreen.getHeight()/board[0].length;
@@ -191,33 +177,22 @@ public class BilgeRobot implements PPRobot
 				lastTime=System.currentTimeMillis()-startTime;
 			}while(! bilgeBoard.isLike(tempBoard));
 			
-			final Coordinate toClick=topSearchBoard(bilgeBoard,3);
+			Coordinate toClick=topSearchBoard(bilgeBoard,3);
 			if(toClick==null)
+			{
+				//TODO find reason here. Duty report? Mission done?
 				continue;
+			}
+			
 			System.out.println(toClick.x+"  "+toClick.y);
+			int x=((toClick.x*tileWidth)+(tileWidth))+topLeft.x;
+			int y=((toClick.y*tileHeight)+(tileHeight/2))+topLeft.y;
 			
-			Runnable r = new Runnable(){
-				int x=((toClick.x*tileWidth)+(tileWidth))+topLeft.x+(int)(Math.random()*40-20);
-				int y=((toClick.y*tileHeight)+(tileHeight/2))+topLeft.y+(int)(Math.random()*20-10);
-				public void run(){
-					robot.delay(150);
-					x=3*tileWidth+topLeft.x+(int)(Math.random()*100-50);
-					y=6*tileHeight+topLeft.y+(int)(Math.random()*200-100);
-					robot.mouseMove(x,y);
-				}
-				};
-			
-			int x=((toClick.x*tileWidth)+(tileWidth))+topLeft.x+(int)(Math.random()*40-20);
-			int y=((toClick.y*tileHeight)+(tileHeight/2))+topLeft.y+(int)(Math.random()*20-10);		
 			System.out.println(x+"  "+y);
+			
 			robot.mouseMove(x,y);
-			robot.delay(100+(int)Math.random()*20-10);
 			robot.mousePress(InputEvent.BUTTON1_MASK);
-			robot.delay((int) (5 + (int)(Math.random())));
 			robot.mouseRelease(InputEvent.BUTTON1_MASK);
-			robot.delay(150+(int)Math.random()*20-10);
-			Thread th = new Thread(r);
-			th.start();
 		}
 		return GameResult.ABORTED;
 	}
