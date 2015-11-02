@@ -5,7 +5,7 @@ import java.awt.Robot;
 
 public class HumanRobot extends Robot
 {
-	private static double mouseSpeed=5;
+	private static double mouseSpeed;
 	private int mouseX=0;
 	private int mouseY=0;
 	
@@ -21,15 +21,38 @@ public class HumanRobot extends Robot
 		double my=mouseY;
 		
 		double distance=getDistance(mouseX,mouseY,x,y);
+		mouseSpeed=0.35+(int)(Math.random())+distance*0.001;
 		double dx=((x-mx)/distance)*mouseSpeed;
 		double dy=((y-my)/distance)*mouseSpeed;
 		
 		int loopCount=(int)(distance/mouseSpeed);
 		
-		for(int i=0;i<loopCount;i++)
+		for(int i=0, bue=0;i<loopCount;i++)
 		{
-			mx+=dx;
-			my+=dy;
+			if(i<loopCount/4)
+			{
+				bue++;
+				mx+=dx+0.001*bue;
+				my+=dy-0.001*bue;
+			}
+			else if(i<loopCount/2 && i>=loopCount/4)
+			{
+				bue--;
+				mx+=dx+0.001*bue;
+				my+=dy-0.001*bue;
+			}
+			else if(i<3*loopCount/4 && i>=loopCount/2)
+			{
+				bue++;
+				mx+=dx-0.001*bue;
+				my+=dy+0.001*bue;
+			}
+			else
+				{
+				bue--;
+				mx+=dx-0.001*bue;
+				my+=dy+0.001*bue;
+				}
 			
 			super.mouseMove((int)mx,(int)my);
 			try
