@@ -20,7 +20,7 @@ public class Main
 	BilgeRobot bilgeRobot;
 	SwordfightRobot swordfightRobot;
 	
-	GameMode gameMode = GameMode.BILGING;
+	GameMode gameMode = GameMode.SWORDFIGHT;
 	
 	public void loadImages()
 	{
